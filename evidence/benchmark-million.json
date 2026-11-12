@@ -1,0 +1,124 @@
+{
+  "implementation_sha256": "36ac95924c5c074fd2f711575406475263bebcab85a1a775c50992e1f69b75fa",
+  "sqlite": "3.46.1",
+  "kind": "synthetic_not_enterprise",
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "cpu_count": 5,
+  "files": 5500,
+  "source_lines": 1006500,
+  "cold": {
+    "snapshot": "9430a91eae55a8f285b5a5a715c99bdcc31f1215eb16709bef541a69ff1a9442",
+    "generation": 1,
+    "parsed_files": 5500,
+    "changed_files": 5500,
+    "unchanged_files": 0,
+    "deleted_files": 0,
+    "seconds": 126.575353,
+    "resolver_complete": true,
+    "wall_seconds": 127.82731307499989,
+    "peak_rss_mib": 107.515625
+  },
+  "warm": {
+    "snapshot": "9430a91eae55a8f285b5a5a715c99bdcc31f1215eb16709bef541a69ff1a9442",
+    "generation": 1,
+    "parsed_files": 0,
+    "changed_files": 0,
+    "unchanged_files": 5500,
+    "deleted_files": 0,
+    "seconds": 0.580576,
+    "resolver_complete": true,
+    "wall_seconds": 0.5858850109998457,
+    "peak_rss_mib": 97.06640625
+  },
+  "one_file_edit": {
+    "snapshot": "b4d1e233bac86ec1040fd019f0b642534bce4edd0132acd2de4c156c41bb15f4",
+    "generation": 2,
+    "parsed_files": 1,
+    "changed_files": 1,
+    "unchanged_files": 5499,
+    "deleted_files": 0,
+    "seconds": 2.276523,
+    "resolver_complete": true,
+    "wall_seconds": 2.3537172460000875,
+    "peak_rss_mib": 106.1484375
+  },
+  "query_ms": {
+    "p50": 1.1159104999478586,
+    "p95": 1.4581120003640535
+  },
+  "eight_reader_query_ms": {
+    "p50": 24.585502999798337,
+    "p95": 53.39890400000513,
+    "consistent_snapshot": true
+  },
+  "state_bytes": 767930368,
+  "status": {
+    "sqlite": {
+      "version": "3.46.1",
+      "known_wal_reset_fix": false,
+      "warning": "SQLite version predates the published WAL-reset fix or an identified backport. Use a patched Python/SQLite build for production; vendor backports cannot be inferred from version alone.",
+      "source": "https://www.sqlite.org/wal.html#the_wal_reset_bug",
+      "application_writer_serialization": true
+    },
+    "indexed": true,
+    "root": "/mnt/data/repo_intel_work/bench/final-release/source",
+    "state": "/mnt/data/repo_intel_work/bench/final-release/state",
+    "snapshot": "b4d1e233bac86ec1040fd019f0b642534bce4edd0132acd2de4c156c41bb15f4",
+    "generation": 2,
+    "indexed_at": 1794357228.4242027,
+    "last_index": {
+      "snapshot": "b4d1e233bac86ec1040fd019f0b642534bce4edd0132acd2de4c156c41bb15f4",
+      "generation": 2,
+      "parsed_files": 1,
+      "changed_files": 1,
+      "unchanged_files": 5499,
+      "deleted_files": 0,
+      "seconds": 2.276523,
+      "resolver_complete": true
+    },
+    "parse_errors": 0,
+    "excluded_files": 0,
+    "unresolved_calls": 220000,
+    "counts": {
+      "files": 5500,
+      "symbols": 60501,
+      "calls": 275000,
+      "call_targets": 55000,
+      "imports": 5499,
+      "accesses": 231000,
+      "patterns": 110000,
+      "runs": 0
+    },
+    "semantic_languages": [
+      "python"
+    ],
+    "excluded_patterns": [
+      ".git",
+      ".venv",
+      "venv",
+      "node_modules",
+      "__pycache__",
+      "dist",
+      "build",
+      ".tox",
+      ".mypy_cache",
+      ".pytest_cache"
+    ],
+    "memory_policy": {
+      "sqlite_cache_kib": 8192,
+      "parser_workers": 1,
+      "max_file_bytes": 8388608
+    },
+    "limitations": [
+      "No complete dynamic-Python model",
+      "No assertion-proof claims",
+      "Static queries do not execute source"
+    ]
+  },
+  "limitations": [
+    "Repeated generated shapes; not real enterprise dynamic dispatch, frameworks or large individual files",
+    "Peak RSS measured separately in indexing subprocess; excludes filesystem cache and sibling processes",
+    "Warm scan verifies all file content hashes; edit re-links global static call facts"
+  ]
+}

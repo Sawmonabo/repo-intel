@@ -1,0 +1,103 @@
+FFFF.F                                                                   [100%]
+=================================== FAILURES ===================================
+________ test_tach_map_preserves_unknown_line_and_coalesces_duplicates _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-10/test_tach_map_preserves_unknow0')
+
+    def test_tach_map_preserves_unknown_line_and_coalesces_duplicates(tmp_path):
+        repo=make(tmp_path)
+        report=tmp_path/'map.json';report.write_text(json.dumps({'a.py':['b.py','b.py'],'b.py':[]}))
+>       result=repo.import_report('tach-map',report)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_specialists.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:69: in import_report
+    return Reports(self).ingest(kind,Path(path),**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.reports.Reports object at 0x7fd83291f8c0>, kind = 'tach-map'
+path = PosixPath('/tmp/pytest-of-root/pytest-10/test_tach_map_preserves_unknow0/map.json')
+
+    def ingest(self, kind: str, path: Path, *, manifest=None, version='unknown', max_report_bytes=1024**3):
+        if kind not in FORMATS:
+>           raise ValueError(f'Unsupported report format: {kind}')
+E           ValueError: Unsupported report format: tach-map
+
+repo_intel/reports.py:41: ValueError
+____________ test_tach_diagnostics_do_not_invent_missing_locations _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-10/test_tach_diagnostics_do_not_i0')
+
+    def test_tach_diagnostics_do_not_invent_missing_locations(tmp_path):
+        repo=make(tmp_path)
+        report=tmp_path/'tach.jsonl'
+        report.write_text(json.dumps({'rule':'dependency','file':'a.py','line':1,'message':'Forbidden',
+                                     'usage_module':'a','definition_module':'b','severity':'error'})+'\n'+
+                          json.dumps({'rule':'configuration','file':None,'line':None,'message':'Missing module'})+'\n')
+>       result=repo.import_report('tach',report)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_specialists.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:69: in import_report
+    return Reports(self).ingest(kind,Path(path),**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.reports.Reports object at 0x7fd832955590>, kind = 'tach'
+path = PosixPath('/tmp/pytest-of-root/pytest-10/test_tach_diagnostics_do_not_i0/tach.jsonl')
+
+    def ingest(self, kind: str, path: Path, *, manifest=None, version='unknown', max_report_bytes=1024**3):
+        if kind not in FORMATS:
+>           raise ValueError(f'Unsupported report format: {kind}')
+E           ValueError: Unsupported report format: tach
+
+repo_intel/reports.py:41: ValueError
+____________ test_runner_requires_trust_and_fails_unavailable_tool _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-10/test_runner_requires_trust_and0')
+
+    def test_runner_requires_trust_and_fails_unavailable_tool(tmp_path):
+        repo=make(tmp_path)
+        with pytest.raises(ValueError,match='trust'):
+>           repo.run_tool('jscpd','.')
+            ^^^^^^^^^^^^^
+E           AttributeError: 'Repository' object has no attribute 'run_tool'
+
+tests/test_specialists.py:41: AttributeError
+__________________ test_worker_lock_is_exclusive_and_released __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-10/test_worker_lock_is_exclusive_0')
+
+    def test_worker_lock_is_exclusive_and_released(tmp_path):
+>       from repo_intel.worker_lock import WorkerLock
+E       ModuleNotFoundError: No module named 'repo_intel.worker_lock'
+
+tests/test_specialists.py:49: ModuleNotFoundError
+__________________ test_specialist_execution_contract_fixture __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-10/test_specialist_execution_cont0')
+
+    def test_specialist_execution_contract_fixture(tmp_path):
+        """Run a fixture executable; this does not verify the upstream jscpd binary."""
+        repo=make(tmp_path)
+        fake=tmp_path/'fixture-cpd'
+        fake.write_text('#!'+sys.executable+'\nimport json,sys,pathlib\n'
+                        'if "--version" in sys.argv: print("fixture-5");sys.exit(0)\n'
+                        'out=pathlib.Path(sys.argv[sys.argv.index("--output")+1]);out.mkdir(exist_ok=True)\n'
+                        '(out/"jscpd-report.json").write_text(json.dumps({"duplicates":[]}))\n')
+        fake.chmod(0o700)
+>       result=repo.run_tool('jscpd','.',trust=True,executable=str(fake))
+               ^^^^^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'run_tool'
+
+tests/test_specialists.py:74: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_specialists.py::test_tach_map_preserves_unknown_line_and_coalesces_duplicates - ValueError: Unsupported report format: tach-map
+FAILED tests/test_specialists.py::test_tach_diagnostics_do_not_invent_missing_locations - ValueError: Unsupported report format: tach
+FAILED tests/test_specialists.py::test_runner_requires_trust_and_fails_unavailable_tool - AttributeError: 'Repository' object has no attribute 'run_tool'
+FAILED tests/test_specialists.py::test_worker_lock_is_exclusive_and_released - ModuleNotFoundError: No module named 'repo_intel.worker_lock'
+FAILED tests/test_specialists.py::test_specialist_execution_contract_fixture - AttributeError: 'Repository' object has no attribute 'run_tool'
+5 failed, 1 passed in 0.28s

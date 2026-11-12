@@ -1,0 +1,28 @@
+# Copy explicitly into a repository as repo-intel.toml. Nothing is changed automatically.
+source_roots = ["src", "."]
+exclude = [".git", ".venv", "venv", "node_modules", "__pycache__", "dist", "build", ".tox"]
+max_file_bytes = 8388608
+max_text_bytes = 2097152
+sqlite_cache_kib = 8192
+query_limit = 200
+max_query_rows = 2000
+max_graph_nodes = 10000
+query_timeout_seconds = 15.0
+clone_min_nodes = 12
+clone_max_tokens = 4096
+entrypoints = ["myapp.main", "myapp.plugins.*", "myapp.api.*"]
+
+# Highest-level layer first. Lower layers may not import higher layers.
+[[layers]]
+name = "api"
+modules = ["myapp.api"]
+[[layers]]
+name = "services"
+modules = ["myapp.services"]
+[[layers]]
+name = "storage"
+modules = ["myapp.storage"]
+
+[[boundaries]]
+from = "myapp.storage*"
+deny = ["myapp.api*"]

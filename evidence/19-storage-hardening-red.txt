@@ -1,0 +1,25 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_____________ test_database_writer_lock_is_distinct_and_exclusive ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-18/test_database_writer_lock_is_d0')
+
+    def test_database_writer_lock_is_distinct_and_exclusive(tmp_path):
+        from repo_intel.worker_lock import WorkerLock
+        repo=make(tmp_path)
+>       with WorkerLock(repo.store.state,filename='database-writer.lock'),pytest.raises(ValueError,match='worker'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: WorkerLock.__init__() got an unexpected keyword argument 'filename'
+
+tests/test_release_hardening.py:128: TypeError
+_____________________ test_sqlite_safety_version_reporting _____________________
+
+    def test_sqlite_safety_version_reporting():
+>       from repo_intel.environment import sqlite_safety
+E       ModuleNotFoundError: No module named 'repo_intel.environment'
+
+tests/test_release_hardening.py:134: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_release_hardening.py::test_database_writer_lock_is_distinct_and_exclusive - TypeError: WorkerLock.__init__() got an unexpected keyword argument 'filename'
+FAILED tests/test_release_hardening.py::test_sqlite_safety_version_reporting - ModuleNotFoundError: No module named 'repo_intel.environment'
+2 failed in 0.13s

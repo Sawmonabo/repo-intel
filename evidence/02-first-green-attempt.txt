@@ -1,0 +1,254 @@
+FFFF..                                                                   [100%]
+=================================== FAILURES ===================================
+_________________________ test_exact_calls_and_aliases _________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-1/test_exact_calls_and_aliases0')
+
+    def test_exact_calls_and_aliases(tmp_path):
+        r, root = engine(tmp_path, {'pkg/__init__.py':'', 'pkg/a.py':
+            'def target(x):\n    return x + 1\n', 'pkg/b.py':
+            'from .a import target as renamed\ndef caller(x):\n    renamed(x); renamed(x+1)\n    return renamed(x)\n'})
+>       r.index()
+
+tests/test_static.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:18: in index
+    def index(self):return Indexer(self.store).run()
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/indexer.py:72: in run
+    Extractor(db,relative,module,file_hash,self.settings).collect(text)
+repo_intel/extract.py:59: in collect
+    self.visit(tree)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:430: in generic_visit
+    self.visit(item)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+repo_intel/extract.py:90: in visit_FunctionDef
+    def visit_FunctionDef(self,node):self.definition(node,'function')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/extract.py:87: in definition
+    for stmt in node.body:self.visit(stmt)
+                          ^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:432: in generic_visit
+    self.visit(value)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.extract.Extractor object at 0x7fda51eb0910>
+node = <ast.Call object at 0x7fda51d993d0>
+
+    def visit_Call(self,node):
+        target,reason=self.scope.resolve(node.func)
+        args={'positional':[expression(x) for x in node.args],
+              'keywords':{x.arg or '**':expression(x.value) for x in node.keywords}}
+>       self.db.execute('INSERT OR IGNORE INTO calls VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+            (self.site(node,'call'),self.path,self.scope.id,node.lineno,node.col_offset,node.end_lineno,
+             expression(node.func),target,reason,json.dumps(args)))
+E       sqlite3.OperationalError: table calls has 10 columns but 11 values were supplied
+
+repo_intel/extract.py:160: OperationalError
+__________________ test_shadowing_does_not_resolve_to_import ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-1/test_shadowing_does_not_resolv0')
+
+    def test_shadowing_does_not_resolve_to_import(tmp_path):
+        r, _ = engine(tmp_path, {'a.py':'def f(): pass\n', 'b.py':'from a import f\ndef g(f):\n    return f()\n'})
+>       r.index(); x = r.query('calls', symbol='b.g')['items'][0]
+        ^^^^^^^^^
+
+tests/test_static.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:18: in index
+    def index(self):return Indexer(self.store).run()
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/indexer.py:72: in run
+    Extractor(db,relative,module,file_hash,self.settings).collect(text)
+repo_intel/extract.py:59: in collect
+    self.visit(tree)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:430: in generic_visit
+    self.visit(item)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+repo_intel/extract.py:90: in visit_FunctionDef
+    def visit_FunctionDef(self,node):self.definition(node,'function')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/extract.py:87: in definition
+    for stmt in node.body:self.visit(stmt)
+                          ^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:432: in generic_visit
+    self.visit(value)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.extract.Extractor object at 0x7fda520fb5c0>
+node = <ast.Call object at 0x7fda51d72ad0>
+
+    def visit_Call(self,node):
+        target,reason=self.scope.resolve(node.func)
+        args={'positional':[expression(x) for x in node.args],
+              'keywords':{x.arg or '**':expression(x.value) for x in node.keywords}}
+>       self.db.execute('INSERT OR IGNORE INTO calls VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+            (self.site(node,'call'),self.path,self.scope.id,node.lineno,node.col_offset,node.end_lineno,
+             expression(node.func),target,reason,json.dumps(args)))
+E       sqlite3.OperationalError: table calls has 10 columns but 11 values were supplied
+
+repo_intel/extract.py:160: OperationalError
+__________________ test_incremental_delete_and_parse_failure ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-1/test_incremental_delete_and_pa0')
+
+    def test_incremental_delete_and_parse_failure(tmp_path):
+        r, root = engine(tmp_path, {'a.py':'def f(): pass\n','b.py':'from a import f\ndef g(): f()\n'})
+>       first = r.index(); second = r.index()
+                ^^^^^^^^^
+
+tests/test_static.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:18: in index
+    def index(self):return Indexer(self.store).run()
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/indexer.py:72: in run
+    Extractor(db,relative,module,file_hash,self.settings).collect(text)
+repo_intel/extract.py:59: in collect
+    self.visit(tree)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:430: in generic_visit
+    self.visit(item)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+repo_intel/extract.py:90: in visit_FunctionDef
+    def visit_FunctionDef(self,node):self.definition(node,'function')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/extract.py:87: in definition
+    for stmt in node.body:self.visit(stmt)
+                          ^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:432: in generic_visit
+    self.visit(value)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.extract.Extractor object at 0x7fda51f61d00>
+node = <ast.Call object at 0x7fda51d1eb50>
+
+    def visit_Call(self,node):
+        target,reason=self.scope.resolve(node.func)
+        args={'positional':[expression(x) for x in node.args],
+              'keywords':{x.arg or '**':expression(x.value) for x in node.keywords}}
+>       self.db.execute('INSERT OR IGNORE INTO calls VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+            (self.site(node,'call'),self.path,self.scope.id,node.lineno,node.col_offset,node.end_lineno,
+             expression(node.func),target,reason,json.dumps(args)))
+E       sqlite3.OperationalError: table calls has 10 columns but 11 values were supplied
+
+repo_intel/extract.py:160: OperationalError
+______________ test_methods_globals_patterns_and_dead_candidates _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-1/test_methods_globals_patterns_0')
+
+    def test_methods_globals_patterns_and_dead_candidates(tmp_path):
+        r,_ = engine(tmp_path, {'a.py':'''import os
+    CACHE = {}
+    class Service:
+        def read(self):
+            return self.helper()
+        def helper(self):
+            return CACHE.get("key")
+    def update(x):
+        global CACHE
+        CACHE["key"] = x
+        if x == "special":
+            try:
+                open("config.txt", "w")
+            except Exception:
+                pass
+    def _unused():
+        return 123
+    '''} )
+>       r.index()
+
+tests/test_static.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:18: in index
+    def index(self):return Indexer(self.store).run()
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/indexer.py:72: in run
+    Extractor(db,relative,module,file_hash,self.settings).collect(text)
+repo_intel/extract.py:59: in collect
+    self.visit(tree)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:430: in generic_visit
+    self.visit(item)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+repo_intel/extract.py:92: in visit_ClassDef
+    def visit_ClassDef(self,node):self.definition(node,'class')
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/extract.py:87: in definition
+    for stmt in node.body:self.visit(stmt)
+                          ^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+repo_intel/extract.py:90: in visit_FunctionDef
+    def visit_FunctionDef(self,node):self.definition(node,'function')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/extract.py:87: in definition
+    for stmt in node.body:self.visit(stmt)
+                          ^^^^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+/usr/lib/python3.13/ast.py:432: in generic_visit
+    self.visit(value)
+/usr/lib/python3.13/ast.py:422: in visit
+    return visitor(node)
+           ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.extract.Extractor object at 0x7fda51f628b0>
+node = <ast.Call object at 0x7fda51a1cb50>
+
+    def visit_Call(self,node):
+        target,reason=self.scope.resolve(node.func)
+        args={'positional':[expression(x) for x in node.args],
+              'keywords':{x.arg or '**':expression(x.value) for x in node.keywords}}
+>       self.db.execute('INSERT OR IGNORE INTO calls VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+            (self.site(node,'call'),self.path,self.scope.id,node.lineno,node.col_offset,node.end_lineno,
+             expression(node.func),target,reason,json.dumps(args)))
+E       sqlite3.OperationalError: table calls has 10 columns but 11 values were supplied
+
+repo_intel/extract.py:160: OperationalError
+=========================== short test summary info ============================
+FAILED tests/test_static.py::test_exact_calls_and_aliases - sqlite3.OperationalError: table calls has 10 columns but 11 values were supplied
+FAILED tests/test_static.py::test_shadowing_does_not_resolve_to_import - sqlite3.OperationalError: table calls has 10 columns but 11 values were supplied
+FAILED tests/test_static.py::test_incremental_delete_and_parse_failure - sqlite3.OperationalError: table calls has 10 columns but 11 values were supplied
+FAILED tests/test_static.py::test_methods_globals_patterns_and_dead_candidates - sqlite3.OperationalError: table calls has 10 columns but 11 values were supplied
+4 failed, 2 passed in 0.58s

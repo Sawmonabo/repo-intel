@@ -1,0 +1,8 @@
+source_roots = ["."]
+entrypoints = ["acme.service.calculate"]
+[[layers]]
+name = "service"
+modules = ["acme.service"]
+[[layers]]
+name = "persistence"
+modules = ["acme.persistence"]

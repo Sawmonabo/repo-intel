@@ -1,0 +1,210 @@
+{
+  "review_date": "2026-11-10",
+  "method": "Primary documentation and source inspection through web retrieval; no upstream binaries fetched or executed except locally available coverage/pytest/Git. Moving main/master references are not immutable release pins.",
+  "sources": [
+    {
+      "id": "S01",
+      "title": "Graphy graph implementation",
+      "url": "https://raw.githubusercontent.com/rosshhun/graphy/main/crates/graphy-core/src/graph.rs",
+      "finding": "Source inspection: StableGraph/HashMaps, cloned serialization, endpoint-and-kind edge deduplication."
+    },
+    {
+      "id": "S02",
+      "title": "Graphy persistence implementation",
+      "url": "https://raw.githubusercontent.com/rosshhun/graphy/main/crates/graphy-core/src/storage.rs",
+      "finding": "Source inspection: bincode graph stored under a redb key; persistence is not out-of-core graph traversal."
+    },
+    {
+      "id": "S03",
+      "title": "Graphy manifest",
+      "url": "https://raw.githubusercontent.com/rosshhun/graphy/main/Cargo.toml",
+      "finding": "Observed main manifest version 1.0.0 and MIT license; not an executed or immutable pinned release."
+    },
+    {
+      "id": "S04",
+      "title": "jscpd 5.4.3 release",
+      "url": "https://github.com/kucherenko/jscpd/releases/tag/v5.4.3",
+      "finding": "Latest release observed, 2026-11-08, short commit b82d841. Rust detection binary with Node launcher."
+    },
+    {
+      "id": "S05",
+      "title": "jscpd JSON reporter",
+      "url": "https://raw.githubusercontent.com/kucherenko/jscpd/master/rust/crates/cpd-reporter/src/json_reporter.rs",
+      "finding": "Source inspection: duplicates, firstFile/secondFile, ranges, clone kind and similarity fields; upstream reporter owns collections."
+    },
+    {
+      "id": "S06",
+      "title": "jscpd Rust usage",
+      "url": "https://github.com/kucherenko/jscpd/blob/master/docs/rust.md",
+      "finding": "Specialist CLI options and installation reference. Do not assume every advertised mode is imported."
+    },
+    {
+      "id": "S07",
+      "title": "Tach published distribution",
+      "url": "https://pypi.org/project/tach/",
+      "finding": "Latest distribution observed 0.35.3, uploaded 2026-10-06; newer than a cached GitHub release listing."
+    },
+    {
+      "id": "S08",
+      "title": "Tach command reference",
+      "url": "https://docs.gauge.sh/usage/commands/",
+      "finding": "Dependency map JSON and configuration-based checks; map edges do not include call-site coordinates."
+    },
+    {
+      "id": "S09",
+      "title": "Tach extension interface",
+      "url": "https://raw.githubusercontent.com/gauge-sh/tach/main/python/tach/extension.pyi",
+      "finding": "parse_project_config/parse_pyproject_config and check signatures; diagnostic properties."
+    },
+    {
+      "id": "S10",
+      "title": "Tach license",
+      "url": "https://raw.githubusercontent.com/gauge-sh/tach/main/LICENSE",
+      "finding": "MIT license observed."
+    },
+    {
+      "id": "S11",
+      "title": "ast-grep release 0.51.1",
+      "url": "https://github.com/ast-grep/ast-grep/releases/tag/0.51.1",
+      "finding": "Latest release observed, 2026-11-02, short commit 5a204b1."
+    },
+    {
+      "id": "S12",
+      "title": "ast-grep JSON format",
+      "url": "https://ast-grep.github.io/guide/tools/json.html",
+      "finding": "Machine-readable structural matches and zero-based source coordinates."
+    },
+    {
+      "id": "S13",
+      "title": "ast-grep license",
+      "url": "https://raw.githubusercontent.com/ast-grep/ast-grep/main/LICENSE",
+      "finding": "MIT license observed."
+    },
+    {
+      "id": "S14",
+      "title": "coverage.py distribution",
+      "url": "https://pypi.org/project/coverage/",
+      "finding": "Latest observed 7.17.2, uploaded 2026-11-04; locally executed version was 7.13.3."
+    },
+    {
+      "id": "S15",
+      "title": "CoverageData public API",
+      "url": "https://coverage.readthedocs.io/en/latest/api_coveragedata.html",
+      "finding": "Context-aware lines/arcs and supported public data API, rather than binding to private SQLite schema."
+    },
+    {
+      "id": "S16",
+      "title": "VizTracer distribution",
+      "url": "https://pypi.org/project/viztracer/",
+      "finding": "Latest observed 1.1.1; runtime profiler, not a static completeness proof."
+    },
+    {
+      "id": "S17",
+      "title": "VizTracer report builder",
+      "url": "https://raw.githubusercontent.com/gaogaotiantian/viztracer/master/src/viztracer/report_builder.py",
+      "finding": "Source inspection: Chrome trace records and metadata; report construction can materialize trace data."
+    },
+    {
+      "id": "S18",
+      "title": "PyFlow project",
+      "url": "https://github.com/ZJU-PL/pyflow",
+      "finding": "Research-oriented alpha; Python analysis infrastructure and distinct engines. License file is LICENSE.txt."
+    },
+    {
+      "id": "S19",
+      "title": "PyFlow distribution",
+      "url": "https://pypi.org/project/pyflow-analysis/",
+      "finding": "Latest observed pyflow-analysis 0.1.2, uploaded 2026-10-08. Do not install the unrelated pyflow distribution."
+    },
+    {
+      "id": "S20",
+      "title": "PyFlow security CLI parser",
+      "url": "https://raw.githubusercontent.com/ZJU-PL/pyflow/main/src/pyflow/cli/security/parser.py",
+      "finding": "IFDS, SARIF output, solver budgets, unknown-call policy and exit policy flags."
+    },
+    {
+      "id": "S21",
+      "title": "PyFlow security command",
+      "url": "https://raw.githubusercontent.com/ZJU-PL/pyflow/main/src/pyflow/cli/security/command.py",
+      "finding": "Command execution and security-result interface inspected; no independent precision/recall or RSS experiment here."
+    },
+    {
+      "id": "S22",
+      "title": "PyFlow semantic server",
+      "url": "https://raw.githubusercontent.com/ZJU-PL/pyflow/main/src/pyflow/cli/lsp.py",
+      "finding": "Independent semantic indexing server would add another repository representation; not started by RepoIntel."
+    },
+    {
+      "id": "S23",
+      "title": "PySpector distribution",
+      "url": "https://pypi.org/project/pyspector/",
+      "finding": "Latest observed 0.2.2, uploaded 2026-09-28; Rust analysis does not imply all-Rust source parsing."
+    },
+    {
+      "id": "S24",
+      "title": "PySpector reporter",
+      "url": "https://raw.githubusercontent.com/ParzivalHack/PySpector/main/src/pyspector/reporting.py",
+      "finding": "JSON summary/issues with rule, file, line, severity and CWE; full solver graph not exported by this contract."
+    },
+    {
+      "id": "S25",
+      "title": "PySpector license",
+      "url": "https://raw.githubusercontent.com/ParzivalHack/PySpector/main/LICENSE",
+      "finding": "Apache-2.0 license observed."
+    },
+    {
+      "id": "S26",
+      "title": "Pyrefly IDE documentation",
+      "url": "https://pyrefly.org/en/docs/IDE/",
+      "finding": "Alternative semantic/LSP foundation considered; not a drop-in persisted evidence/taint API."
+    },
+    {
+      "id": "S27",
+      "title": "code2graph project",
+      "url": "https://github.com/NodeDB-Lab/code2graph",
+      "finding": "Rust structural extraction candidate, storage-neutral; not executed or embedded in this build."
+    },
+    {
+      "id": "S28",
+      "title": "CPython AST reference",
+      "url": "https://docs.python.org/3/library/ast.html",
+      "finding": "Language syntax and UTF-8 byte column conventions. Parsing capabilities follow the executing Python version."
+    },
+    {
+      "id": "S29",
+      "title": "SQLite WAL documentation",
+      "url": "https://www.sqlite.org/wal.html",
+      "finding": "Concurrency/local-filesystem constraints and WAL-reset fix: 3.51.3+, or identified 3.44.6/3.50.7 backports."
+    },
+    {
+      "id": "S30",
+      "title": "MCP transport specification",
+      "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/transports",
+      "finding": "Newline stdio, JSON HTTP responses, origin/authentication and loopback requirements."
+    },
+    {
+      "id": "S31",
+      "title": "Codex MCP documentation",
+      "url": "https://learn.chatgpt.com/docs/extend/mcp?surface=cli",
+      "finding": "Official MCP integration; configuration is generated, not written into the user account."
+    },
+    {
+      "id": "S32",
+      "title": "Codex subscription authentication",
+      "url": "https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan",
+      "finding": "Native sign-in with ChatGPT and plan usage limits; RepoIntel does not use an inference API."
+    },
+    {
+      "id": "S33",
+      "title": "Claude Code MCP documentation",
+      "url": "https://code.claude.com/docs/en/mcp",
+      "finding": "Native local stdio connections and tool permission controls."
+    },
+    {
+      "id": "S34",
+      "title": "Claude Code authentication",
+      "url": "https://code.claude.com/docs/en/authentication",
+      "finding": "Use the official client account/subscription login, not an OAuth inference proxy."
+    }
+  ]
+}

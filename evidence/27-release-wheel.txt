@@ -1,0 +1,10 @@
+WARNING: The directory '/home/oai/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing /mnt/data/repo_intel
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: repo-intel-local
+  Building wheel for repo-intel-local (pyproject.toml): started
+  Building wheel for repo-intel-local (pyproject.toml): finished with status 'done'
+  Created wheel for repo-intel-local: filename=repo_intel_local-0.1.0-py3-none-any.whl size=68462 sha256=24259a3c50a7199e45b9a1b8fcb1364a51a4f31f47177d7acdb218a27732bcac
+  Stored in directory: /tmp/pip-ephem-wheel-cache-igkr_tlv/wheels/e4/59/7c/4b0baa6228612c271ca4aaee6c6cf715de87b9860e569ae8d6
+Successfully built repo-intel-local

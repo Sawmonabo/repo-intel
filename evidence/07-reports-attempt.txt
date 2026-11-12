@@ -1,0 +1,431 @@
+..FFFF.F..............                                                   [100%]
+=================================== FAILURES ===================================
+_____________ test_jscpd_merge_is_idempotent_and_keeps_provenance ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-6/test_jscpd_merge_is_idempotent0')
+
+    def test_jscpd_merge_is_idempotent_and_keeps_provenance(tmp_path):
+        repo = fixture(tmp_path)
+        path = report(tmp_path, 'cpd.json', {'duplicates': [
+            {'format': 'python', 'lines': 2, 'tokens': 10, 'kind': 'exact',
+             'firstFile': {'name': 'a.py', 'start': 1, 'end': 2},
+             'secondFile': {'name': 'a.py', 'start': 4, 'end': 5}}
+        ]})
+>       result = repo.import_report('jscpd', path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_reports.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:69: in import_report
+    return Reports(self).ingest(kind,Path(path),**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.reports.Reports object at 0x7f76fb2a7620>, kind = 'jscpd'
+path = PosixPath('/tmp/pytest-of-root/pytest-6/test_jscpd_merge_is_idempotent0/cpd.json')
+
+    def ingest(self, kind: str, path: Path, *, manifest=None, version='unknown', max_report_bytes=1024**3):
+        if kind not in FORMATS:
+            raise ValueError(f'Unsupported report format: {kind}')
+        path=Path(path).resolve()
+        if not path.is_file() or path.stat().st_size>max_report_bytes:
+            raise ValueError('Report missing or larger than report budget')
+        content=file_digest(path)
+        accepted=rejected=0
+        reasons={}
+        with self.repo.store.write() as db:
+            snapshot=Store.get(db,'snapshot')
+            if not snapshot:
+                raise ValueError('Index the repository before importing reports')
+            if manifest:
+                if manifest.get('root')!=str(self.repo.root) or manifest.get('snapshot')!=snapshot:
+                    raise ValueError('Report manifest source snapshot does not match the current repository index')
+            run=identity(snapshot,kind,content,manifest or {},version)
+            if db.execute('SELECT 1 FROM runs WHERE id=?',(run,)).fetchone():
+                return {'status':'already_imported','run':run}
+            status='complete' if manifest else 'unverified_source_identity'
+            provenance={'report_sha256':content, 'source_identity':'declared_snapshot' if manifest else 'unverified',
+                        'upstream_execution_verified_by_this_package':False,
+                        'manifest':manifest, 'report_format':kind, 'scope_complete':None}
+            db.execute('INSERT INTO runs VALUES(?,?,?,?,?,?,?,?)',
+                       (run,snapshot,'report',kind,version,status,time.time(),json.dumps(provenance)))
+            with path.open(encoding='utf-8') as source:
+                reader=ReportReader(kind,source)
+                for item in reader:
+                    try:
+                        if kind=='viztracer':
+                            event=trace_record(item)
+                            if event is None:
+                                rejected+=1;reasons['non_source_event']=reasons.get('non_source_event',0)+1
+                                continue
+                            relative,lines=self._path(db,event['file'])
+                            if event['line']>lines:
+                                raise ValueError('Trace source line outside indexed file')
+                            db.execute('INSERT INTO runtime_events VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                                (run,accepted,event['pid'],event['tid'],event['timestamp_ns'],event['event'],relative,
+                                 event['line'],event['qualname'],None,None,'',json.dumps(event['details'])))
+                        else:
+                            row=normalize(kind,item)
+                            row['file'],lines=self._path(db,row['file'])
+                            if row['line']>lines:
+                                raise ValueError('Report source line outside indexed file')
+                            if row.get('related_file'):
+                                row['related_file'],other_lines=self._path(db,row['related_file'])
+                                if row['related_line']>other_lines:
+                                    raise ValueError('Related source line outside indexed file')
+                            row.setdefault('end_line',row['line'])
+                            if row['end_line']<row['line']:
+                                raise ValueError('Invalid source range')
+                            # Identity includes semantic rule and coordinates; different tools
+                            # are not assumed equivalent merely because they share a location.
+                            key=identity(snapshot,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                         row.get('related_file'),row.get('related_line'))
+>                           db.execute('INSERT OR IGNORE INTO findings VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                                (key,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                 row.get('related_file'),row.get('related_line'),row['message'][:16384],json.dumps(row['details'])))
+E                                sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+
+repo_intel/reports.py:95: OperationalError
+______________ test_ast_grep_zero_based_positions_and_path_escape ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-6/test_ast_grep_zero_based_posit0')
+
+    def test_ast_grep_zero_based_positions_and_path_escape(tmp_path):
+        repo = fixture(tmp_path)
+        path = report(tmp_path, 'sg.json', [
+            {'file': 'a.py', 'ruleId': 'no-plus-one', 'range': {
+                'start': {'line': 1, 'column': 4}, 'end': {'line': 1, 'column': 16}},
+             'message': 'candidate'}])
+>       repo.import_report('ast-grep', path)
+
+tests/test_reports.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:69: in import_report
+    return Reports(self).ingest(kind,Path(path),**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.reports.Reports object at 0x7f76fb29da90>, kind = 'ast-grep'
+path = PosixPath('/tmp/pytest-of-root/pytest-6/test_ast_grep_zero_based_posit0/sg.json')
+
+    def ingest(self, kind: str, path: Path, *, manifest=None, version='unknown', max_report_bytes=1024**3):
+        if kind not in FORMATS:
+            raise ValueError(f'Unsupported report format: {kind}')
+        path=Path(path).resolve()
+        if not path.is_file() or path.stat().st_size>max_report_bytes:
+            raise ValueError('Report missing or larger than report budget')
+        content=file_digest(path)
+        accepted=rejected=0
+        reasons={}
+        with self.repo.store.write() as db:
+            snapshot=Store.get(db,'snapshot')
+            if not snapshot:
+                raise ValueError('Index the repository before importing reports')
+            if manifest:
+                if manifest.get('root')!=str(self.repo.root) or manifest.get('snapshot')!=snapshot:
+                    raise ValueError('Report manifest source snapshot does not match the current repository index')
+            run=identity(snapshot,kind,content,manifest or {},version)
+            if db.execute('SELECT 1 FROM runs WHERE id=?',(run,)).fetchone():
+                return {'status':'already_imported','run':run}
+            status='complete' if manifest else 'unverified_source_identity'
+            provenance={'report_sha256':content, 'source_identity':'declared_snapshot' if manifest else 'unverified',
+                        'upstream_execution_verified_by_this_package':False,
+                        'manifest':manifest, 'report_format':kind, 'scope_complete':None}
+            db.execute('INSERT INTO runs VALUES(?,?,?,?,?,?,?,?)',
+                       (run,snapshot,'report',kind,version,status,time.time(),json.dumps(provenance)))
+            with path.open(encoding='utf-8') as source:
+                reader=ReportReader(kind,source)
+                for item in reader:
+                    try:
+                        if kind=='viztracer':
+                            event=trace_record(item)
+                            if event is None:
+                                rejected+=1;reasons['non_source_event']=reasons.get('non_source_event',0)+1
+                                continue
+                            relative,lines=self._path(db,event['file'])
+                            if event['line']>lines:
+                                raise ValueError('Trace source line outside indexed file')
+                            db.execute('INSERT INTO runtime_events VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                                (run,accepted,event['pid'],event['tid'],event['timestamp_ns'],event['event'],relative,
+                                 event['line'],event['qualname'],None,None,'',json.dumps(event['details'])))
+                        else:
+                            row=normalize(kind,item)
+                            row['file'],lines=self._path(db,row['file'])
+                            if row['line']>lines:
+                                raise ValueError('Report source line outside indexed file')
+                            if row.get('related_file'):
+                                row['related_file'],other_lines=self._path(db,row['related_file'])
+                                if row['related_line']>other_lines:
+                                    raise ValueError('Related source line outside indexed file')
+                            row.setdefault('end_line',row['line'])
+                            if row['end_line']<row['line']:
+                                raise ValueError('Invalid source range')
+                            # Identity includes semantic rule and coordinates; different tools
+                            # are not assumed equivalent merely because they share a location.
+                            key=identity(snapshot,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                         row.get('related_file'),row.get('related_line'))
+>                           db.execute('INSERT OR IGNORE INTO findings VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                                (key,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                 row.get('related_file'),row.get('related_line'),row['message'][:16384],json.dumps(row['details'])))
+E                                sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+
+repo_intel/reports.py:95: OperationalError
+_______________ test_sarif_preserves_paths_and_partial_metadata ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-6/test_sarif_preserves_paths_and0')
+
+    def test_sarif_preserves_paths_and_partial_metadata(tmp_path):
+        repo = fixture(tmp_path)
+        path = report(tmp_path, 'security.sarif', {'version': '2.1.0', 'runs': [{
+            'tool': {'driver': {'name': 'PyFlow', 'version': 'fixture'}},
+            'results': [{'ruleId': 'taint', 'level': 'warning', 'message': {'text': 'Potential flow'},
+                         'locations': [{'physicalLocation': {'artifactLocation': {'uri': 'a.py'},
+                                                              'region': {'startLine': 2}}}],
+                         'codeFlows': [{'threadFlows': [{'locations': []}]}]}]}]})
+>       repo.import_report('sarif', path)
+
+tests/test_reports.py:92: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:69: in import_report
+    return Reports(self).ingest(kind,Path(path),**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.reports.Reports object at 0x7f76fb29e350>, kind = 'sarif'
+path = PosixPath('/tmp/pytest-of-root/pytest-6/test_sarif_preserves_paths_and0/security.sarif')
+
+    def ingest(self, kind: str, path: Path, *, manifest=None, version='unknown', max_report_bytes=1024**3):
+        if kind not in FORMATS:
+            raise ValueError(f'Unsupported report format: {kind}')
+        path=Path(path).resolve()
+        if not path.is_file() or path.stat().st_size>max_report_bytes:
+            raise ValueError('Report missing or larger than report budget')
+        content=file_digest(path)
+        accepted=rejected=0
+        reasons={}
+        with self.repo.store.write() as db:
+            snapshot=Store.get(db,'snapshot')
+            if not snapshot:
+                raise ValueError('Index the repository before importing reports')
+            if manifest:
+                if manifest.get('root')!=str(self.repo.root) or manifest.get('snapshot')!=snapshot:
+                    raise ValueError('Report manifest source snapshot does not match the current repository index')
+            run=identity(snapshot,kind,content,manifest or {},version)
+            if db.execute('SELECT 1 FROM runs WHERE id=?',(run,)).fetchone():
+                return {'status':'already_imported','run':run}
+            status='complete' if manifest else 'unverified_source_identity'
+            provenance={'report_sha256':content, 'source_identity':'declared_snapshot' if manifest else 'unverified',
+                        'upstream_execution_verified_by_this_package':False,
+                        'manifest':manifest, 'report_format':kind, 'scope_complete':None}
+            db.execute('INSERT INTO runs VALUES(?,?,?,?,?,?,?,?)',
+                       (run,snapshot,'report',kind,version,status,time.time(),json.dumps(provenance)))
+            with path.open(encoding='utf-8') as source:
+                reader=ReportReader(kind,source)
+                for item in reader:
+                    try:
+                        if kind=='viztracer':
+                            event=trace_record(item)
+                            if event is None:
+                                rejected+=1;reasons['non_source_event']=reasons.get('non_source_event',0)+1
+                                continue
+                            relative,lines=self._path(db,event['file'])
+                            if event['line']>lines:
+                                raise ValueError('Trace source line outside indexed file')
+                            db.execute('INSERT INTO runtime_events VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                                (run,accepted,event['pid'],event['tid'],event['timestamp_ns'],event['event'],relative,
+                                 event['line'],event['qualname'],None,None,'',json.dumps(event['details'])))
+                        else:
+                            row=normalize(kind,item)
+                            row['file'],lines=self._path(db,row['file'])
+                            if row['line']>lines:
+                                raise ValueError('Report source line outside indexed file')
+                            if row.get('related_file'):
+                                row['related_file'],other_lines=self._path(db,row['related_file'])
+                                if row['related_line']>other_lines:
+                                    raise ValueError('Related source line outside indexed file')
+                            row.setdefault('end_line',row['line'])
+                            if row['end_line']<row['line']:
+                                raise ValueError('Invalid source range')
+                            # Identity includes semantic rule and coordinates; different tools
+                            # are not assumed equivalent merely because they share a location.
+                            key=identity(snapshot,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                         row.get('related_file'),row.get('related_line'))
+>                           db.execute('INSERT OR IGNORE INTO findings VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                                (key,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                 row.get('related_file'),row.get('related_line'),row['message'][:16384],json.dumps(row['details'])))
+E                                sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+
+repo_intel/reports.py:95: OperationalError
+__________________________ test_pyspector_native_json __________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-6/test_pyspector_native_json0')
+
+    def test_pyspector_native_json(tmp_path):
+        repo = fixture(tmp_path)
+        path = report(tmp_path, 'security.json', {'summary': {'issue_count': 1}, 'issues': [
+            {'rule_id': 'TEST', 'file_path': str(repo.root / 'a.py'), 'line_number': 2,
+             'description': 'Candidate', 'severity': 'HIGH', 'cwe': 'CWE-20', 'code': 'secret excluded'}]})
+>       repo.import_report('pyspector', path)
+
+tests/test_reports.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:69: in import_report
+    return Reports(self).ingest(kind,Path(path),**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.reports.Reports object at 0x7f76fb4cfe10>, kind = 'pyspector'
+path = PosixPath('/tmp/pytest-of-root/pytest-6/test_pyspector_native_json0/security.json')
+
+    def ingest(self, kind: str, path: Path, *, manifest=None, version='unknown', max_report_bytes=1024**3):
+        if kind not in FORMATS:
+            raise ValueError(f'Unsupported report format: {kind}')
+        path=Path(path).resolve()
+        if not path.is_file() or path.stat().st_size>max_report_bytes:
+            raise ValueError('Report missing or larger than report budget')
+        content=file_digest(path)
+        accepted=rejected=0
+        reasons={}
+        with self.repo.store.write() as db:
+            snapshot=Store.get(db,'snapshot')
+            if not snapshot:
+                raise ValueError('Index the repository before importing reports')
+            if manifest:
+                if manifest.get('root')!=str(self.repo.root) or manifest.get('snapshot')!=snapshot:
+                    raise ValueError('Report manifest source snapshot does not match the current repository index')
+            run=identity(snapshot,kind,content,manifest or {},version)
+            if db.execute('SELECT 1 FROM runs WHERE id=?',(run,)).fetchone():
+                return {'status':'already_imported','run':run}
+            status='complete' if manifest else 'unverified_source_identity'
+            provenance={'report_sha256':content, 'source_identity':'declared_snapshot' if manifest else 'unverified',
+                        'upstream_execution_verified_by_this_package':False,
+                        'manifest':manifest, 'report_format':kind, 'scope_complete':None}
+            db.execute('INSERT INTO runs VALUES(?,?,?,?,?,?,?,?)',
+                       (run,snapshot,'report',kind,version,status,time.time(),json.dumps(provenance)))
+            with path.open(encoding='utf-8') as source:
+                reader=ReportReader(kind,source)
+                for item in reader:
+                    try:
+                        if kind=='viztracer':
+                            event=trace_record(item)
+                            if event is None:
+                                rejected+=1;reasons['non_source_event']=reasons.get('non_source_event',0)+1
+                                continue
+                            relative,lines=self._path(db,event['file'])
+                            if event['line']>lines:
+                                raise ValueError('Trace source line outside indexed file')
+                            db.execute('INSERT INTO runtime_events VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                                (run,accepted,event['pid'],event['tid'],event['timestamp_ns'],event['event'],relative,
+                                 event['line'],event['qualname'],None,None,'',json.dumps(event['details'])))
+                        else:
+                            row=normalize(kind,item)
+                            row['file'],lines=self._path(db,row['file'])
+                            if row['line']>lines:
+                                raise ValueError('Report source line outside indexed file')
+                            if row.get('related_file'):
+                                row['related_file'],other_lines=self._path(db,row['related_file'])
+                                if row['related_line']>other_lines:
+                                    raise ValueError('Related source line outside indexed file')
+                            row.setdefault('end_line',row['line'])
+                            if row['end_line']<row['line']:
+                                raise ValueError('Invalid source range')
+                            # Identity includes semantic rule and coordinates; different tools
+                            # are not assumed equivalent merely because they share a location.
+                            key=identity(snapshot,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                         row.get('related_file'),row.get('related_line'))
+>                           db.execute('INSERT OR IGNORE INTO findings VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                                (key,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                 row.get('related_file'),row.get('related_line'),row['message'][:16384],json.dumps(row['details'])))
+E                                sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+
+repo_intel/reports.py:95: OperationalError
+_____ test_report_failure_rolls_back_and_wrong_source_manifest_is_rejected _____
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-6/test_report_failure_rolls_back0')
+
+    def test_report_failure_rolls_back_and_wrong_source_manifest_is_rejected(tmp_path):
+        repo = fixture(tmp_path)
+        path = tmp_path / 'bad.json'
+        path.write_text('{"duplicates":[{"firstFile":{"name":"a.py","start":1,"end":2},"secondFile":{"name":"a.py","start":4,"end":5}},')
+        with pytest.raises(ValueError):
+>           repo.import_report('jscpd', path)
+
+tests/test_reports.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:69: in import_report
+    return Reports(self).ingest(kind,Path(path),**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.reports.Reports object at 0x7f76fb2a2cf0>, kind = 'jscpd'
+path = PosixPath('/tmp/pytest-of-root/pytest-6/test_report_failure_rolls_back0/bad.json')
+
+    def ingest(self, kind: str, path: Path, *, manifest=None, version='unknown', max_report_bytes=1024**3):
+        if kind not in FORMATS:
+            raise ValueError(f'Unsupported report format: {kind}')
+        path=Path(path).resolve()
+        if not path.is_file() or path.stat().st_size>max_report_bytes:
+            raise ValueError('Report missing or larger than report budget')
+        content=file_digest(path)
+        accepted=rejected=0
+        reasons={}
+        with self.repo.store.write() as db:
+            snapshot=Store.get(db,'snapshot')
+            if not snapshot:
+                raise ValueError('Index the repository before importing reports')
+            if manifest:
+                if manifest.get('root')!=str(self.repo.root) or manifest.get('snapshot')!=snapshot:
+                    raise ValueError('Report manifest source snapshot does not match the current repository index')
+            run=identity(snapshot,kind,content,manifest or {},version)
+            if db.execute('SELECT 1 FROM runs WHERE id=?',(run,)).fetchone():
+                return {'status':'already_imported','run':run}
+            status='complete' if manifest else 'unverified_source_identity'
+            provenance={'report_sha256':content, 'source_identity':'declared_snapshot' if manifest else 'unverified',
+                        'upstream_execution_verified_by_this_package':False,
+                        'manifest':manifest, 'report_format':kind, 'scope_complete':None}
+            db.execute('INSERT INTO runs VALUES(?,?,?,?,?,?,?,?)',
+                       (run,snapshot,'report',kind,version,status,time.time(),json.dumps(provenance)))
+            with path.open(encoding='utf-8') as source:
+                reader=ReportReader(kind,source)
+                for item in reader:
+                    try:
+                        if kind=='viztracer':
+                            event=trace_record(item)
+                            if event is None:
+                                rejected+=1;reasons['non_source_event']=reasons.get('non_source_event',0)+1
+                                continue
+                            relative,lines=self._path(db,event['file'])
+                            if event['line']>lines:
+                                raise ValueError('Trace source line outside indexed file')
+                            db.execute('INSERT INTO runtime_events VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                                (run,accepted,event['pid'],event['tid'],event['timestamp_ns'],event['event'],relative,
+                                 event['line'],event['qualname'],None,None,'',json.dumps(event['details'])))
+                        else:
+                            row=normalize(kind,item)
+                            row['file'],lines=self._path(db,row['file'])
+                            if row['line']>lines:
+                                raise ValueError('Report source line outside indexed file')
+                            if row.get('related_file'):
+                                row['related_file'],other_lines=self._path(db,row['related_file'])
+                                if row['related_line']>other_lines:
+                                    raise ValueError('Related source line outside indexed file')
+                            row.setdefault('end_line',row['line'])
+                            if row['end_line']<row['line']:
+                                raise ValueError('Invalid source range')
+                            # Identity includes semantic rule and coordinates; different tools
+                            # are not assumed equivalent merely because they share a location.
+                            key=identity(snapshot,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                         row.get('related_file'),row.get('related_line'))
+>                           db.execute('INSERT OR IGNORE INTO findings VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                                (key,row['kind'],row['rule'],row['file'],row['line'],row['end_line'],
+                                 row.get('related_file'),row.get('related_line'),row['message'][:16384],json.dumps(row['details'])))
+E                                sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+
+repo_intel/reports.py:95: OperationalError
+=========================== short test summary info ============================
+FAILED tests/test_reports.py::test_jscpd_merge_is_idempotent_and_keeps_provenance - sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+FAILED tests/test_reports.py::test_ast_grep_zero_based_positions_and_path_escape - sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+FAILED tests/test_reports.py::test_sarif_preserves_paths_and_partial_metadata - sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+FAILED tests/test_reports.py::test_pyspector_native_json - sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+FAILED tests/test_reports.py::test_report_failure_rolls_back_and_wrong_source_manifest_is_rejected - sqlite3.OperationalError: table findings has 10 columns but 11 values were supplied
+5 failed, 17 passed in 5.88s

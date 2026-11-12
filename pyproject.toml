@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "repo-intel-local"
+version = "0.1.0"
+description = "Local, disk-backed Python code intelligence with one MCP interface and explicit evidence limitations"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{name = "RepoIntel contributors"}]
+keywords = ["mcp", "code-analysis", "python", "sqlite", "call-graph"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = []
+
+[project.scripts]
+repo-intel = "repo_intel.cli:main"
+
+[project.optional-dependencies]
+runtime = ["pytest>=8", "coverage>=7.6"]
+dev = ["pytest>=8", "coverage>=7.6"]
+
+[tool.setuptools.packages.find]
+include = ["repo_intel*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"

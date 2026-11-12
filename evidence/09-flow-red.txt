@@ -1,0 +1,52 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+________________ test_flow_branches_merge_reaching_definitions _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-8/test_flow_branches_merge_reach0')
+
+    def test_flow_branches_merge_reaching_definitions(tmp_path):
+        repo = make(tmp_path, 'def f(flag, x):\n    y = x\n    if flag:\n        y = 42\n    return y\n')
+>       result = repo.flow('a.f')
+                 ^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'flow'
+
+tests/test_flow.py:14: AttributeError
+________________ test_loop_fixedpoint_and_local_call_arguments _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-8/test_loop_fixedpoint_and_local0')
+
+    def test_loop_fixedpoint_and_local_call_arguments(tmp_path):
+        repo = make(tmp_path, 'def callee(x):\n    return x\n\ndef loop(xs):\n    total = 0\n    for x in xs:\n        total += x\n    return callee(total)\n')
+>       result = repo.flow('a.loop')
+                 ^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'flow'
+
+tests/test_flow.py:26: AttributeError
+________ test_unsupported_exception_flow_is_explicit_and_budgets_reject ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-8/test_unsupported_exception_flo0')
+
+    def test_unsupported_exception_flow_is_explicit_and_budgets_reject(tmp_path):
+        repo = make(tmp_path, 'def f(x):\n    try:\n        return x()\n    finally:\n        print("done")\n')
+>       result = repo.flow('a.f')
+                 ^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'flow'
+
+tests/test_flow.py:37: AttributeError
+__________ test_flow_does_not_treat_nested_function_body_as_executed ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-8/test_flow_does_not_treat_neste0')
+
+    def test_flow_does_not_treat_nested_function_body_as_executed(tmp_path):
+        repo = make(tmp_path, 'def f(x):\n    def inner():\n        secret = x\n        return secret\n    return inner\n')
+>       result = repo.flow('a.f')
+                 ^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'flow'
+
+tests/test_flow.py:49: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_flow.py::test_flow_branches_merge_reaching_definitions - AttributeError: 'Repository' object has no attribute 'flow'
+FAILED tests/test_flow.py::test_loop_fixedpoint_and_local_call_arguments - AttributeError: 'Repository' object has no attribute 'flow'
+FAILED tests/test_flow.py::test_unsupported_exception_flow_is_explicit_and_budgets_reject - AttributeError: 'Repository' object has no attribute 'flow'
+FAILED tests/test_flow.py::test_flow_does_not_treat_nested_function_body_as_executed - AttributeError: 'Repository' object has no attribute 'flow'
+4 failed in 0.14s

@@ -1,0 +1,38 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____________ test_report_ranges_cannot_extend_beyond_source[999-5] _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-22/test_report_ranges_cannot_exte0')
+first_end = 999, second_end = 5
+
+    @pytest.mark.parametrize('first_end,second_end',[(999,5),(2,999)])
+    def test_report_ranges_cannot_extend_beyond_source(tmp_path,first_end,second_end):
+        repo=fixture(tmp_path)
+        path=report(tmp_path,'ranges.json',{'duplicates':[{
+            'firstFile':{'name':'a.py','start':1,'end':first_end},
+            'secondFile':{'name':'a.py','start':4,'end':second_end}}]})
+        result=repo.import_report('jscpd',path,manifest=repo.export_manifest())
+>       assert result['accepted']==0 and result['rejected']==1
+E       assert (1 == 0)
+
+tests/test_reports.py:143: AssertionError
+____________ test_report_ranges_cannot_extend_beyond_source[2-999] _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-22/test_report_ranges_cannot_exte1')
+first_end = 2, second_end = 999
+
+    @pytest.mark.parametrize('first_end,second_end',[(999,5),(2,999)])
+    def test_report_ranges_cannot_extend_beyond_source(tmp_path,first_end,second_end):
+        repo=fixture(tmp_path)
+        path=report(tmp_path,'ranges.json',{'duplicates':[{
+            'firstFile':{'name':'a.py','start':1,'end':first_end},
+            'secondFile':{'name':'a.py','start':4,'end':second_end}}]})
+        result=repo.import_report('jscpd',path,manifest=repo.export_manifest())
+>       assert result['accepted']==0 and result['rejected']==1
+E       assert (1 == 0)
+
+tests/test_reports.py:143: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_reports.py::test_report_ranges_cannot_extend_beyond_source[999-5] - assert (1 == 0)
+FAILED tests/test_reports.py::test_report_ranges_cannot_extend_beyond_source[2-999] - assert (1 == 0)
+2 failed in 0.12s

@@ -1,0 +1,109 @@
+FFFEEEEFF                                                                [100%]
+==================================== ERRORS ====================================
+_________ ERROR at setup of test_http_initialize_notification_and_get __________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_http_initialize_notificat0')
+
+    @pytest.fixture
+    def http_server(tmp_path):
+>       from repo_intel.mcp import MCPApplication
+E       ModuleNotFoundError: No module named 'repo_intel.mcp'
+
+tests/test_mcp.py:75: ModuleNotFoundError
+______ ERROR at setup of test_http_auth_origin_host_and_version_rejection ______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_http_auth_origin_host_and0')
+
+    @pytest.fixture
+    def http_server(tmp_path):
+>       from repo_intel.mcp import MCPApplication
+E       ModuleNotFoundError: No module named 'repo_intel.mcp'
+
+tests/test_mcp.py:75: ModuleNotFoundError
+__________ ERROR at setup of test_http_multiple_clients_same_snapshot __________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_http_multiple_clients_sam0')
+
+    @pytest.fixture
+    def http_server(tmp_path):
+>       from repo_intel.mcp import MCPApplication
+E       ModuleNotFoundError: No module named 'repo_intel.mcp'
+
+tests/test_mcp.py:75: ModuleNotFoundError
+_____________ ERROR at setup of test_proxy_real_subprocess_and_cli _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_proxy_real_subprocess_and0')
+
+    @pytest.fixture
+    def http_server(tmp_path):
+>       from repo_intel.mcp import MCPApplication
+E       ModuleNotFoundError: No module named 'repo_intel.mcp'
+
+tests/test_mcp.py:75: ModuleNotFoundError
+=================================== FAILURES ===================================
+__________________ test_initialize_tools_query_and_validation __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_initialize_tools_query_an0')
+
+    def test_initialize_tools_query_and_validation(tmp_path):
+>       from repo_intel.mcp import MCPApplication
+E       ModuleNotFoundError: No module named 'repo_intel.mcp'
+
+tests/test_mcp.py:26: ModuleNotFoundError
+___________________ test_stdio_roundtrip_and_malformed_input ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_stdio_roundtrip_and_malfo0')
+
+    def test_stdio_roundtrip_and_malformed_input(tmp_path):
+>       from repo_intel.mcp import MCPApplication,serve_stdio
+E       ModuleNotFoundError: No module named 'repo_intel.mcp'
+
+tests/test_mcp.py:42: ModuleNotFoundError
+___________ test_mcp_rejects_unknown_args_and_bool_in_integer_field ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_mcp_rejects_unknown_args_0')
+
+    def test_mcp_rejects_unknown_args_and_bool_in_integer_field(tmp_path):
+>       from repo_intel.mcp import MCPApplication
+E       ModuleNotFoundError: No module named 'repo_intel.mcp'
+
+tests/test_mcp.py:54: ModuleNotFoundError
+__________________________ test_cli_stdio_executable ___________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_cli_stdio_executable0')
+
+    def test_cli_stdio_executable(tmp_path):
+        repo=make(tmp_path)
+        proc=subprocess.run([sys.executable,'-m','repo_intel','--repo',str(repo.root),'--state',str(repo.store.state),
+                             'serve','stdio'],input=json.dumps(request('tools/list'))+'\n',text=True,
+                            capture_output=True,timeout=10)
+>       assert proc.returncode==0,proc.stderr
+E       AssertionError: /opt/pyvenv/bin/python: No module named repo_intel.__main__; 'repo_intel' is a package and cannot be directly executed
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/opt/pyvenv/bin/python', '-m', 'repo_intel', '--repo', '/tmp/pytest-of-root/pytest-12/test_cli...t/pyvenv/bin/python: No module named repo_intel.__main__; 'repo_intel' is a package and cannot be directly executed\n").returncode
+
+tests/test_mcp.py:134: AssertionError
+____________________ test_http_never_binds_public_interface ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_http_never_binds_public_i0')
+
+    def test_http_never_binds_public_interface(tmp_path):
+>       from repo_intel.mcp import MCPApplication
+E       ModuleNotFoundError: No module named 'repo_intel.mcp'
+
+tests/test_mcp.py:139: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_mcp.py::test_initialize_tools_query_and_validation - ModuleNotFoundError: No module named 'repo_intel.mcp'
+FAILED tests/test_mcp.py::test_stdio_roundtrip_and_malformed_input - ModuleNotFoundError: No module named 'repo_intel.mcp'
+FAILED tests/test_mcp.py::test_mcp_rejects_unknown_args_and_bool_in_integer_field - ModuleNotFoundError: No module named 'repo_intel.mcp'
+FAILED tests/test_mcp.py::test_cli_stdio_executable - AssertionError: /opt/pyvenv/bin/python: No module named repo_intel.__main__; 'repo_intel' is a package and cannot be directly executed
+  
+assert 1 == 0
+ +  where 1 = CompletedProcess(args=['/opt/pyvenv/bin/python', '-m', 'repo_intel', '--repo', '/tmp/pytest-of-root/pytest-12/test_cli...t/pyvenv/bin/python: No module named repo_intel.__main__; 'repo_intel' is a package and cannot be directly executed\n").returncode
+FAILED tests/test_mcp.py::test_http_never_binds_public_interface - ModuleNotFoundError: No module named 'repo_intel.mcp'
+ERROR tests/test_mcp.py::test_http_initialize_notification_and_get - ModuleNotFoundError: No module named 'repo_intel.mcp'
+ERROR tests/test_mcp.py::test_http_auth_origin_host_and_version_rejection - ModuleNotFoundError: No module named 'repo_intel.mcp'
+ERROR tests/test_mcp.py::test_http_multiple_clients_same_snapshot - ModuleNotFoundError: No module named 'repo_intel.mcp'
+ERROR tests/test_mcp.py::test_proxy_real_subprocess_and_cli - ModuleNotFoundError: No module named 'repo_intel.mcp'
+5 failed, 4 errors in 1.01s

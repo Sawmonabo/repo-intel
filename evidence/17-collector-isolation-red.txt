@@ -1,0 +1,41 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________ test_runtime_host_does_not_require_coverage_library ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-16/test_runtime_host_does_not_req0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd838c12190>
+
+    def test_runtime_host_does_not_require_coverage_library(tmp_path,monkeypatch):
+        import sys
+        repo=make(tmp_path)
+        (repo.root/'test_a.py').write_text('from a import f\ndef test_value():\n    assert f(1)==2\n')
+        # Only the selected child test interpreter needs pytest/coverage. The core can remain stdlib-only.
+        monkeypatch.setitem(sys.modules,'coverage',None)
+>       result=repo.capture(['-q'],trust=True,timeout=30)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_release_hardening.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+repo_intel/service.py:61: in capture
+    return Capture(self).run(args,**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/capture.py:23: in run
+    return self._run(args,**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+repo_intel/capture.py:42: in _run
+    result['imported']=self.import_run(output,run)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <repo_intel.capture.Capture object at 0x7fd8389d7230>
+output = PosixPath('/tmp/pytest-of-root/pytest-16/test_runtime_host_does_not_req0/state/runs/9cb6d6ce419f4758851eb18c7acc2fc9')
+run = '9cb6d6ce419f4758851eb18c7acc2fc9'
+
+    def import_run(self,output: Path,run: str):
+>       from coverage import CoverageData
+E       ModuleNotFoundError: import of coverage halted; None in sys.modules
+
+repo_intel/capture.py:47: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_release_hardening.py::test_runtime_host_does_not_require_coverage_library - ModuleNotFoundError: import of coverage halted; None in sys.modules
+1 failed in 2.84s

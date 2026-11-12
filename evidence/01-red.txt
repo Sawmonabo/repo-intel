@@ -1,0 +1,160 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+_________________________ test_exact_calls_and_aliases _________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_exact_calls_and_aliases0')
+
+    def test_exact_calls_and_aliases(tmp_path):
+>       r, root = engine(tmp_path, {'pkg/__init__.py':'', 'pkg/a.py':
+            'def target(x):\n    return x + 1\n', 'pkg/b.py':
+            'from .a import target as renamed\ndef caller(x):\n    renamed(x); renamed(x+1)\n    return renamed(x)\n'})
+
+tests/test_static.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_exact_calls_and_aliases0')
+files = {'pkg/__init__.py': '', 'pkg/a.py': 'def target(x):\n    return x + 1\n', 'pkg/b.py': 'from .a import target as renamed\ndef caller(x):\n    renamed(x); renamed(x+1)\n    return renamed(x)\n'}
+
+    def engine(tmp_path, files):
+        root = tmp_path / 'repo'; root.mkdir()
+        for name, text in files.items():
+            p = root / name; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(text)
+>       from repo_intel.service import Repository
+E       ModuleNotFoundError: No module named 'repo_intel.service'
+
+tests/test_static.py:10: ModuleNotFoundError
+__________________ test_shadowing_does_not_resolve_to_import ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_shadowing_does_not_resolv0')
+
+    def test_shadowing_does_not_resolve_to_import(tmp_path):
+>       r, _ = engine(tmp_path, {'a.py':'def f(): pass\n', 'b.py':'from a import f\ndef g(f):\n    return f()\n'})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_static.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_shadowing_does_not_resolv0')
+files = {'a.py': 'def f(): pass\n', 'b.py': 'from a import f\ndef g(f):\n    return f()\n'}
+
+    def engine(tmp_path, files):
+        root = tmp_path / 'repo'; root.mkdir()
+        for name, text in files.items():
+            p = root / name; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(text)
+>       from repo_intel.service import Repository
+E       ModuleNotFoundError: No module named 'repo_intel.service'
+
+tests/test_static.py:10: ModuleNotFoundError
+__________________ test_incremental_delete_and_parse_failure ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_incremental_delete_and_pa0')
+
+    def test_incremental_delete_and_parse_failure(tmp_path):
+>       r, root = engine(tmp_path, {'a.py':'def f(): pass\n','b.py':'from a import f\ndef g(): f()\n'})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_static.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_incremental_delete_and_pa0')
+files = {'a.py': 'def f(): pass\n', 'b.py': 'from a import f\ndef g(): f()\n'}
+
+    def engine(tmp_path, files):
+        root = tmp_path / 'repo'; root.mkdir()
+        for name, text in files.items():
+            p = root / name; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(text)
+>       from repo_intel.service import Repository
+E       ModuleNotFoundError: No module named 'repo_intel.service'
+
+tests/test_static.py:10: ModuleNotFoundError
+______________ test_methods_globals_patterns_and_dead_candidates _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_methods_globals_patterns_0')
+
+    def test_methods_globals_patterns_and_dead_candidates(tmp_path):
+>       r,_ = engine(tmp_path, {'a.py':'''import os
+    CACHE = {}
+    class Service:
+        def read(self):
+            return self.helper()
+        def helper(self):
+            return CACHE.get("key")
+    def update(x):
+        global CACHE
+        CACHE["key"] = x
+        if x == "special":
+            try:
+                open("config.txt", "w")
+            except Exception:
+                pass
+    def _unused():
+        return 123
+    '''} )
+
+tests/test_static.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_methods_globals_patterns_0')
+files = {'a.py': 'import os\nCACHE = {}\nclass Service:\n    def read(self):\n        return self.helper()\n    def helper(sel...:\n            open("config.txt", "w")\n        except Exception:\n            pass\ndef _unused():\n    return 123\n'}
+
+    def engine(tmp_path, files):
+        root = tmp_path / 'repo'; root.mkdir()
+        for name, text in files.items():
+            p = root / name; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(text)
+>       from repo_intel.service import Repository
+E       ModuleNotFoundError: No module named 'repo_intel.service'
+
+tests/test_static.py:10: ModuleNotFoundError
+__________________ test_cycles_layers_duplicates_and_mentions __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_cycles_layers_duplicates_0')
+
+    def test_cycles_layers_duplicates_and_mentions(tmp_path):
+>       r,root=engine(tmp_path, {'a.py':'import b\ndef f(x):\n    y=x+2\n    return y*3\n',
+        'b.py':'import a\ndef copy(n):\n    z=n+2\n    return z*3\n',
+        'README.md':'f is an external entrypoint\n'})
+
+tests/test_static.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_cycles_layers_duplicates_0')
+files = {'README.md': 'f is an external entrypoint\n', 'a.py': 'import b\ndef f(x):\n    y=x+2\n    return y*3\n', 'b.py': 'import a\ndef copy(n):\n    z=n+2\n    return z*3\n'}
+
+    def engine(tmp_path, files):
+        root = tmp_path / 'repo'; root.mkdir()
+        for name, text in files.items():
+            p = root / name; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(text)
+>       from repo_intel.service import Repository
+E       ModuleNotFoundError: No module named 'repo_intel.service'
+
+tests/test_static.py:10: ModuleNotFoundError
+__________________ test_read_source_rejects_escape_and_stale ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_read_source_rejects_escap0')
+
+    def test_read_source_rejects_escape_and_stale(tmp_path):
+>       r,root=engine(tmp_path, {'a.py':'def f(): return 1\n'});r.index()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_static.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_read_source_rejects_escap0')
+files = {'a.py': 'def f(): return 1\n'}
+
+    def engine(tmp_path, files):
+        root = tmp_path / 'repo'; root.mkdir()
+        for name, text in files.items():
+            p = root / name; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(text)
+>       from repo_intel.service import Repository
+E       ModuleNotFoundError: No module named 'repo_intel.service'
+
+tests/test_static.py:10: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_static.py::test_exact_calls_and_aliases - ModuleNotFoundError: No module named 'repo_intel.service'
+FAILED tests/test_static.py::test_shadowing_does_not_resolve_to_import - ModuleNotFoundError: No module named 'repo_intel.service'
+FAILED tests/test_static.py::test_incremental_delete_and_parse_failure - ModuleNotFoundError: No module named 'repo_intel.service'
+FAILED tests/test_static.py::test_methods_globals_patterns_and_dead_candidates - ModuleNotFoundError: No module named 'repo_intel.service'
+FAILED tests/test_static.py::test_cycles_layers_duplicates_and_mentions - ModuleNotFoundError: No module named 'repo_intel.service'
+FAILED tests/test_static.py::test_read_source_rejects_escape_and_stale - ModuleNotFoundError: No module named 'repo_intel.service'
+6 failed in 0.10s

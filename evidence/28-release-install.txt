@@ -1,0 +1,10 @@
+WARNING: The directory '/home/oai/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing ./wheels/repo_intel_local-0.1.0-py3-none-any.whl
+Installing collected packages: repo-intel-local
+Successfully installed repo-intel-local-0.1.0
+0.1.0
+
+Installed without network access or model credentials.
+Python: /mnt/data/repo_intel_work/release-env/bin/python
+Next: use that Python with -m repo_intel --repo /absolute/path/to/repo index
+See README.md for one shared MCP service and subscription-agent configuration.

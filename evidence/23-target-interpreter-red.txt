@@ -1,0 +1,19 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_mcp_capture_accepts_target_interpreter_and_requires_call_trust ______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-20/test_mcp_capture_accepts_targe0')
+
+    def test_mcp_capture_accepts_target_interpreter_and_requires_call_trust(tmp_path):
+        from repo_intel.mcp import MCPApplication
+        repo=make(tmp_path)
+        (repo.root/'test_a.py').write_text('from a import g\ndef test_g():\n    assert g()==3\n')
+        app=MCPApplication(repo,allow_execution=True)
+        missing=app.handle(request('tools/call',{'name':'repo_capture','arguments':{'args':['-q']}}))
+>       assert missing['result']['isError'] is True
+E       assert False is True
+
+tests/test_mcp.py:151: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_mcp.py::test_mcp_capture_accepts_target_interpreter_and_requires_call_trust - assert False is True
+1 failed in 3.02s

@@ -1,0 +1,46 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+__________ test_history_cochange_is_derived_not_quadratically_stored ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-3/test_history_cochange_is_deriv0')
+
+    def test_history_cochange_is_derived_not_quadratically_stored(tmp_path):
+        r,root=engine(tmp_path,{'a.py':'A=1\n','b.py':'B=1\n','with space.py':'X=1\n'})
+        git(root,'init','-q');git(root,'config','user.name','Tester');git(root,'config','user.email','tester@local')
+        git(root,'add','.');git(root,'commit','-qm','first')
+        (root/'a.py').write_text('A=2\n');(root/'b.py').write_text('B=2\n')
+        git(root,'add','.');git(root,'commit','-qm','second')
+>       r.index();out=r.history(max_commits=100)
+                      ^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'history'
+
+tests/test_runtime_history.py:18: AttributeError
+_______________ test_runtime_and_test_map_are_collected_together _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-3/test_runtime_and_test_map_are_0')
+
+    def test_runtime_and_test_map_are_collected_together(tmp_path):
+        r,root=engine(tmp_path,{'app.py': 'def inc(x):\n    if x>0:\n        return x+1\n    return 0\n',
+            'test_app.py':'from app import inc\ndef test_positive():\n    assert inc(2)==3\ndef test_negative():\n    assert inc(-1)==0\n'})
+        r.index()
+>       with pytest.raises(ValueError,match='trust'):r.capture(['-q'],trust=False)
+                                                     ^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'capture'
+
+tests/test_runtime_history.py:29: AttributeError
+________________________ test_trace_limit_is_not_silent ________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-3/test_trace_limit_is_not_silent0')
+
+    def test_trace_limit_is_not_silent(tmp_path):
+        r,root=engine(tmp_path,{'test_many.py':'def helper(): return 1\ndef test_many():\n    for _ in range(100): helper()\n'})
+>       r.index();out=r.capture(['-q'],trust=True,max_events=2,timeout=30)
+                      ^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'capture'
+
+tests/test_runtime_history.py:44: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_runtime_history.py::test_history_cochange_is_derived_not_quadratically_stored - AttributeError: 'Repository' object has no attribute 'history'
+FAILED tests/test_runtime_history.py::test_runtime_and_test_map_are_collected_together - AttributeError: 'Repository' object has no attribute 'capture'
+FAILED tests/test_runtime_history.py::test_trace_limit_is_not_silent - AttributeError: 'Repository' object has no attribute 'capture'
+3 failed in 0.16s

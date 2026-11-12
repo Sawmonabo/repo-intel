@@ -1,0 +1,69 @@
+{
+  "installed_module": "/mnt/data/repo_intel_work/release-env/lib/python3.13/site-packages/repo_intel/__init__.py",
+  "host_optional_dependencies": false,
+  "python": "3.13.5 (main, Jun 25 2025, 18:55:22) [GCC 14.2.0]",
+  "cold_index": {
+    "snapshot": "49058d4e72eef7df11403e7e3e999ec74b408ac8bf15ce007f67fee34d366b7e",
+    "generation": 1,
+    "parsed_files": 8,
+    "changed_files": 10,
+    "unchanged_files": 0,
+    "deleted_files": 0,
+    "seconds": 0.024341,
+    "resolver_complete": true
+  },
+  "warm_index": {
+    "snapshot": "49058d4e72eef7df11403e7e3e999ec74b408ac8bf15ce007f67fee34d366b7e",
+    "generation": 1,
+    "parsed_files": 0,
+    "changed_files": 0,
+    "unchanged_files": 10,
+    "deleted_files": 0,
+    "seconds": 0.008664,
+    "resolver_complete": true
+  },
+  "query_counts": {
+    "symbols": 19,
+    "calls": 21,
+    "imports": 10,
+    "cycles": 1,
+    "architecture": 1,
+    "state": 25,
+    "coupling": 3,
+    "duplicates": 1,
+    "literals": 3,
+    "patterns": 9,
+    "dead": 6,
+    "files": 10,
+    "references": 55,
+    "tests": 10,
+    "test_arcs": 15,
+    "runtime": 18,
+    "runtime_calls": 9
+  },
+  "history": {
+    "commits": 2,
+    "memberships": 11,
+    "head": "d69403411ba077ff1aa6de913d50a4a7b910dba1",
+    "max_commits": 5000,
+    "repository_commit_count": 2,
+    "rename_tracking": false,
+    "merge_semantics": "git log default name-only; merge commits may have no file membership",
+    "collected_at": 1794357145.0641453,
+    "truncated": false
+  },
+  "mcp_stdio_responses": 3,
+  "capture_exit_code": 0,
+  "capture_import": {
+    "status": "complete",
+    "events": 18,
+    "lines": 10,
+    "arcs": 15,
+    "trace_complete": true,
+    "coverage_complete": true,
+    "rejected_source_files": 0,
+    "run": "29b2b9c822164b498b9eca641dc8a08e"
+  },
+  "config_generated": true,
+  "retention_dry_run": true
+}

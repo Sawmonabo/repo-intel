@@ -1,0 +1,120 @@
+FFFFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+_____________ test_stream_large_array_and_reject_trailing_garbage ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-5/test_stream_large_array_and_re0')
+
+    def test_stream_large_array_and_reject_trailing_garbage(tmp_path):
+>       from repo_intel.json_stream import JsonStream
+E       ModuleNotFoundError: No module named 'repo_intel.json_stream'
+
+tests/test_reports.py:26: ModuleNotFoundError
+______________ test_stream_oversized_record_and_invalid_document _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-5/test_stream_oversized_record_a0')
+
+    def test_stream_oversized_record_and_invalid_document(tmp_path):
+>       from repo_intel.json_stream import JsonStream
+E       ModuleNotFoundError: No module named 'repo_intel.json_stream'
+
+tests/test_reports.py:39: ModuleNotFoundError
+_____________ test_jscpd_merge_is_idempotent_and_keeps_provenance ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-5/test_jscpd_merge_is_idempotent0')
+
+    def test_jscpd_merge_is_idempotent_and_keeps_provenance(tmp_path):
+        repo = fixture(tmp_path)
+        path = report(tmp_path, 'cpd.json', {'duplicates': [
+            {'format': 'python', 'lines': 2, 'tokens': 10, 'kind': 'exact',
+             'firstFile': {'name': 'a.py', 'start': 1, 'end': 2},
+             'secondFile': {'name': 'a.py', 'start': 4, 'end': 5}}
+        ]})
+>       result = repo.import_report('jscpd', path)
+                 ^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'import_report'
+
+tests/test_reports.py:54: AttributeError
+______________ test_ast_grep_zero_based_positions_and_path_escape ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-5/test_ast_grep_zero_based_posit0')
+
+    def test_ast_grep_zero_based_positions_and_path_escape(tmp_path):
+        repo = fixture(tmp_path)
+        path = report(tmp_path, 'sg.json', [
+            {'file': 'a.py', 'ruleId': 'no-plus-one', 'range': {
+                'start': {'line': 1, 'column': 4}, 'end': {'line': 1, 'column': 16}},
+             'message': 'candidate'}])
+>       repo.import_report('ast-grep', path)
+        ^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'import_report'
+
+tests/test_reports.py:73: AttributeError
+_______________ test_sarif_preserves_paths_and_partial_metadata ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-5/test_sarif_preserves_paths_and0')
+
+    def test_sarif_preserves_paths_and_partial_metadata(tmp_path):
+        repo = fixture(tmp_path)
+        path = report(tmp_path, 'security.sarif', {'version': '2.1.0', 'runs': [{
+            'tool': {'driver': {'name': 'PyFlow', 'version': 'fixture'}},
+            'results': [{'ruleId': 'taint', 'level': 'warning', 'message': {'text': 'Potential flow'},
+                         'locations': [{'physicalLocation': {'artifactLocation': {'uri': 'a.py'},
+                                                              'region': {'startLine': 2}}}],
+                         'codeFlows': [{'threadFlows': [{'locations': []}]}]}]}]})
+>       repo.import_report('sarif', path)
+        ^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'import_report'
+
+tests/test_reports.py:92: AttributeError
+__________________________ test_pyspector_native_json __________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-5/test_pyspector_native_json0')
+
+    def test_pyspector_native_json(tmp_path):
+        repo = fixture(tmp_path)
+        path = report(tmp_path, 'security.json', {'summary': {'issue_count': 1}, 'issues': [
+            {'rule_id': 'TEST', 'file_path': str(repo.root / 'a.py'), 'line_number': 2,
+             'description': 'Candidate', 'severity': 'HIGH', 'cwe': 'CWE-20', 'code': 'secret excluded'}]})
+>       repo.import_report('pyspector', path)
+        ^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'import_report'
+
+tests/test_reports.py:104: AttributeError
+________ test_viztracer_overflow_unknown_callsite_and_verified_manifest ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-5/test_viztracer_overflow_unknow0')
+
+    def test_viztracer_overflow_unknown_callsite_and_verified_manifest(tmp_path):
+        repo = fixture(tmp_path)
+        path = report(tmp_path, 'trace.json', {'traceEvents': [
+            {'ph': 'X', 'name': f'first ({repo.root}/a.py:1)', 'pid': 1, 'tid': 2, 'ts': 1.25, 'dur': 3.5}],
+            'viztracer_metadata': {'overflow': True, 'version': 'fixture'}})
+>       manifest = repo.export_manifest()
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Repository' object has no attribute 'export_manifest'
+
+tests/test_reports.py:114: AttributeError
+_____ test_report_failure_rolls_back_and_wrong_source_manifest_is_rejected _____
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-5/test_report_failure_rolls_back0')
+
+    def test_report_failure_rolls_back_and_wrong_source_manifest_is_rejected(tmp_path):
+        repo = fixture(tmp_path)
+        path = tmp_path / 'bad.json'
+        path.write_text('{"duplicates":[{"firstFile":{"name":"a.py","start":1,"end":2},"secondFile":{"name":"a.py","start":4,"end":5}},')
+        with pytest.raises(ValueError):
+>           repo.import_report('jscpd', path)
+            ^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'Repository' object has no attribute 'import_report'
+
+tests/test_reports.py:127: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_reports.py::test_stream_large_array_and_reject_trailing_garbage - ModuleNotFoundError: No module named 'repo_intel.json_stream'
+FAILED tests/test_reports.py::test_stream_oversized_record_and_invalid_document - ModuleNotFoundError: No module named 'repo_intel.json_stream'
+FAILED tests/test_reports.py::test_jscpd_merge_is_idempotent_and_keeps_provenance - AttributeError: 'Repository' object has no attribute 'import_report'
+FAILED tests/test_reports.py::test_ast_grep_zero_based_positions_and_path_escape - AttributeError: 'Repository' object has no attribute 'import_report'
+FAILED tests/test_reports.py::test_sarif_preserves_paths_and_partial_metadata - AttributeError: 'Repository' object has no attribute 'import_report'
+FAILED tests/test_reports.py::test_pyspector_native_json - AttributeError: 'Repository' object has no attribute 'import_report'
+FAILED tests/test_reports.py::test_viztracer_overflow_unknown_callsite_and_verified_manifest - AttributeError: 'Repository' object has no attribute 'export_manifest'
+FAILED tests/test_reports.py::test_report_failure_rolls_back_and_wrong_source_manifest_is_rejected - AttributeError: 'Repository' object has no attribute 'import_report'
+8 failed in 0.19s
